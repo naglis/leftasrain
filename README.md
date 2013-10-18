@@ -6,36 +6,43 @@ terminal.
 - Python 3.3
 
 ## Installation
-```
-pip install leftasrain
+```bash
+$ pip install leftasrain
 ```
 
 ## Usage
 To use it, simply execute:
-```
-leftasrain
+```bash
+$ leftasrain
 ```
 
 This will output links to all songs on [leftasrain][lar]. Not much use, heh?
 
 Let's play the latest 100 songs:
-```
-leftasrain -l 100 | mplayer -playlist -
+```bash
+$ leftasrain -l 100 | mplayer -playlist -
 ```
 
 Shuffle?
-```
-leftasrain -l 100 | mplayer -shuffle -playlist -
+```bash
+$ leftasrain -l 100 | mplayer -shuffle -playlist -
 ```
 
-Ok, what about downloading?
+Listen to [leftasrain][lar] in `mpd`?
+```bash
+$ leftasrain -t 6 > ~/.mpd/playlists/leftasrain.m3u
 ```
-leftasrain | wget -nc -i -
+Note: your mpd playlist directory may be different. Please refer to your mpd
+configuration.
+
+Ok, what about downloading?
+```bash
+$ leftasrain | wget -nc -i -
 ```
 
 To speed things up, several threads can be used:
-```
-leftasrain -l 100 -t 6
+```bash
+$ leftasrain -l 100 -t 6
 ```
 
 The default number of threads is `2`.
