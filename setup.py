@@ -4,10 +4,9 @@ from distutils.core import setup
 setup(
     name="leftasrain",
     packages=["leftasrain"],
-    version="0.0.1",
+    version="0.0.3",
     description="Listen to/download songs from leftasrain.com from the comfort of your terminal",
     url="https://github.com/naglis/leftasrain",
-    license="LICENSE",
     author="Naglis Jonaitis",
     author_email="njonaitis@gmail.com",
     keywords=["script", "leftasrain", "music", "mp3"],
