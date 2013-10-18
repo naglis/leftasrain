@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # Copyright 2012, 2013 Naglis Jonaitis
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License version 2 as
-# published by the Free Software Foundation
 
 """A script which helps you to listen to/download songs from leftasrain.com
 from the comfort of your terminal."""
@@ -13,12 +9,18 @@ import argparse
 import json
 import queue
 import threading
+import urllib.parse
 import urllib.request
 
 
-NEXT_TRACK_URL = "http://leftasrain.com/getNextTrack.php?currTrackEntry={id:d}&shuffle={shuffle:s}"
+__license__ = "Public Domain"
+__version__ = "0.0.3"
+__author__ = "Naglis Jonaitis"
+__email__ = "njonaitis@gmail.com"
+
+NEXT_TRACK_URL = "http://leftasrain.com/getNextTrack.php?%s"
 # this can change over time
-SONG_URI = "http://leftasrain.com/musica/%s.mp3"
+SONG_URI_BASE = "http://leftasrain.com/musica/"
 
 
 def get_song_count():
@@ -30,27 +32,31 @@ def get_song_count():
 def get_song_data(id):
     """Returns a list of song attributes"""
 
-    result = urllib.request.urlopen(NEXT_TRACK_URL.format(id=id,
-                                                          shuffle="false"))
+    params = urllib.parse.urlencode({'currTrackEntry': id, 'shuffle': 'false'})
+    result = urllib.request.urlopen(NEXT_TRACK_URL % params)
     return json.loads(result.read().decode("utf-8"))
 
 
 def worker():
     while True:
         id = queue.get()
-        results[id] = SONG_URI % get_song_data(id)[4]
+        filename = urllib.parse.quote("%s.mp3" % get_song_data(id)[4])
+        results[id] = urllib.parse.urljoin(SONG_URI_BASE, filename)
         queue.task_done()
 
 
 queue = queue.Queue()
 results = {}
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog="leftasrain")
     parser.add_argument("-l", "--last", dest="last", metavar="N", type=int,
                         help="download last %(metavar)s songs", default=0)
     parser.add_argument("-t", "--threads", dest="threads", type=int,
                         default=2, metavar="THREADS",
-                        help="number of execution THREADS")
+                        help="number of execution THREADS. "
+                             "Default: %(default)s")
+    parser.add_argument("--version", action="version",
+                        version="%(prog)s " + "%s" % __version__)
     args = parser.parse_args()
 
     n = get_song_count() + 1
