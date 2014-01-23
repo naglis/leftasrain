@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright 2012, 2013 Naglis Jonaitis
+# Copyright 2012-2014 Naglis Jonaitis
 
 """A script which helps you to listen to/download songs from leftasrain.com
 from the comfort of your terminal."""
 
-import argparse
 import json
 import queue
 import threading
 import urllib.parse
 import urllib.request
 
+from argparse import ArgumentParser
+
 
 __license__ = "Public Domain"
-__version__ = "0.0.3"
+__version__ = "0.0.3.1"
 __author__ = "Naglis Jonaitis"
 __email__ = "njonaitis@gmail.com"
 
@@ -45,10 +46,8 @@ def worker():
         queue.task_done()
 
 
-queue = queue.Queue()
-results = {}
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog="leftasrain")
+def parse_args():
+    parser = ArgumentParser(prog="leftasrain")
     parser.add_argument("-l", "--last", dest="last", metavar="N", type=int,
                         help="download last %(metavar)s songs", default=0)
     parser.add_argument("-t", "--threads", dest="threads", type=int,
@@ -57,7 +56,15 @@ if __name__ == "__main__":
                              "Default: %(default)s")
     parser.add_argument("--version", action="version",
                         version="%(prog)s " + "%s" % __version__)
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+queue = queue.Queue()
+results = {}
+
+
+def main():
+    args = parse_args()
 
     n = get_song_count() + 1
     for i in range(n, args.last == 0 and 1 or n - args.last, -1):
@@ -73,3 +80,7 @@ if __name__ == "__main__":
 
     for id in sorted(results.keys(), reverse=True):
         print(results[id])
+
+
+if __name__ == "__main__":
+    main()

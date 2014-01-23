@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-from distutils.core import setup
+from setuptools import setup
+
+version="0.0.3.1"
 
 setup(
     name="leftasrain",
-    packages=["leftasrain"],
-    version="0.0.3",
+    version=version,
     description="Listen to/download songs from leftasrain.com from the comfort of your terminal",
     url="https://github.com/naglis/leftasrain",
     author="Naglis Jonaitis",
@@ -23,5 +24,6 @@ setup(
         "License :: Public Domain",
         "Topic :: Utilities"
     ],
-    scripts=["leftasrain/leftasrain"],
+    py_modules=["leftasrain"],
+    entry_points={"console_scripts": [ "leftasrain = leftasrain:main" ]},
 )

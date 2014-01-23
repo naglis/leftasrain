@@ -1,57 +1,76 @@
-# leftasrain
-Listen to/download songs from [leftasrain.com][lar] from the comfort of your
+leftasrain
+==========
+
+Listen to/download songs from `leftasrain`_ from the comfort of your
 terminal.
 
-## Requirements
-- Python 3.3
+Requirements
+------------
 
-## Installation
-```bash
-$ pip install leftasrain
-```
+* Python 3.3
 
-## Usage
+Installation
+------------
+
+::
+
+    $ pip install leftasrain
+
+Usage
+-----
+
 To use it, simply execute:
-```bash
-$ leftasrain
-```
 
-This will output links to all songs on [leftasrain][lar]. Not much use, heh?
+::
+
+    $ leftasrain
+
+This will output links to all songs on `leftasrain`_. Not much use, heh?
 
 Let's play the latest 100 songs:
-```bash
-$ leftasrain -l 100 | mplayer -playlist -
-```
+
+::
+
+    $ leftasrain -l 100 | mplayer -playlist -
 
 Shuffle?
-```bash
-$ leftasrain -l 100 | mplayer -shuffle -playlist -
-```
 
-Listen to [leftasrain][lar] in `mpd`?
-```bash
-$ leftasrain -t 6 > ~/.mpd/playlists/leftasrain.m3u
-```
+::
+
+    $ leftasrain -l 100 | mplayer -shuffle -playlist -
+
+Listen to `leftasrain`_ in ``mpd``?
+
+::
+
+    $ leftasrain -t 6 > ~/.mpd/playlists/leftasrain.m3u
+
 Note: your mpd playlist directory may be different. Please refer to your mpd
 configuration.
 
 Ok, what about downloading?
-```bash
-$ leftasrain | wget -nc -i -
-```
+
+::
+
+    $ leftasrain | wget -nc -i -
 
 To speed things up, several threads can be used:
-```bash
-$ leftasrain -l 100 -t 6
-```
 
-The default number of threads is `2`.
+::
 
-## Disclaimer
+    $ leftasrain -l 100 -t 6
+
+The default number of threads is **2**.
+
+Disclaimer
+----------
+
 I take no responsibility for any legal issues that may arise from you
 listening to or downloading songs from leftasrain.com.
 
-## License
+License
+-------
+
 This is free and unencumbered software released into the public domain.
 
 Anyone is free to copy, modify, publish, use, compile, sell, or
@@ -76,4 +95,4 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 
 
-[lar]: http://leftasrain.com/
+.. _leftasrain: http://leftasrain.com/
