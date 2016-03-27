@@ -1,86 +1,56 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright 2012-2014 Naglis Jonaitis
+# Copyright 2012-2016 Naglis Jonaitis
 
-"""A script which helps you to listen to/download songs from leftasrain.com
-from the comfort of your terminal."""
+"""A script which helps you download songs from leftasrain.com"""
 
-import json
-import queue
-import threading
-import urllib.parse
-import urllib.request
+import argparse
+import logging
+import os
 
-from argparse import ArgumentParser
+import requests
 
-
-__license__ = "Public Domain"
-__version__ = "0.0.3.1"
-__author__ = "Naglis Jonaitis"
-__email__ = "njonaitis@gmail.com"
-
-NEXT_TRACK_URL = "http://leftasrain.com/getNextTrack.php?%s"
-# this can change over time
-SONG_URI_BASE = "http://leftasrain.com/musica/"
+__version__ = '0.1.0'
+LOG = logging.getLogger(__name__)
+SONG_INFO_URL = 'http://leftasrain.com/posts/get/{id:}'
+STREAM_KEY_URL = 'http://leftasrain.com/streamsong/{id:}'
+STREAM_URL = 'http://leftasrain.com/streamsong/{id:}/{key:}'
 
 
-def get_song_count():
-    """Returns the total number of songs on leftasrain.com"""
-
-    return int(get_song_data(0)[0])
-
-
-def get_song_data(id):
-    """Returns a list of song attributes"""
-
-    params = urllib.parse.urlencode({'currTrackEntry': id, 'shuffle': 'false'})
-    result = urllib.request.urlopen(NEXT_TRACK_URL % params)
-    return json.loads(result.read().decode("utf-8"))
+def get_stream_url(id, s):
+    headers = {
+        'X-Requested-With': 'XMLHttpRequest',
+    }
+    url = STREAM_KEY_URL.format(id=id)
+    r = s.get(url, headers=headers)
+    return STREAM_URL.format(id=id, key=r.text)
 
 
-def worker():
-    while True:
-        id = queue.get()
-        filename = urllib.parse.quote("%s.mp3" % get_song_data(id)[4])
-        results[id] = urllib.parse.urljoin(SONG_URI_BASE, filename)
-        queue.task_done()
-
-
-def parse_args():
-    parser = ArgumentParser(prog="leftasrain")
-    parser.add_argument("-l", "--last", dest="last", metavar="N", type=int,
-                        help="download last %(metavar)s songs", default=0)
-    parser.add_argument("-t", "--threads", dest="threads", type=int,
-                        default=2, metavar="THREADS",
-                        help="number of execution THREADS. "
-                             "Default: %(default)s")
-    parser.add_argument("--version", action="version",
-                        version="%(prog)s " + "%s" % __version__)
-    return parser.parse_args()
-
-
-queue = queue.Queue()
-results = {}
+def get_song_info(id, s):
+    url = SONG_INFO_URL.format(id=id)
+    r = s.get(url)
+    return r.json()
 
 
 def main():
-    args = parse_args()
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+    p = argparse.ArgumentParser(prog='leftasrain')
+    p.add_argument('song_id', type=int)
+    p.add_argument('--version', action='version',
+                   version='%%(prog)s %s' % __version__)
+    args = p.parse_args()
 
-    n = get_song_count() + 1
-    for i in range(n, args.last == 0 and 1 or n - args.last, -1):
-        queue.put(i)
+    s = requests.Session()
+    info = get_song_info(args.song_id, s)
+    stream_url = get_stream_url(args.song_id, s)
 
-    for i in range(args.threads):
-        t = threading.Thread(target=worker)
-        t.daemon = True
-        t.start()
+    filename = info.get('song_path', '{id:}.mp3'.format(id=args.song_id))
+    if os.path.exists(filename):
+        LOG.warn('File: %s exists, skipping.', filename)
+    else:
+        r = s.get(stream_url)
+        with open(filename, 'wb') as f:
+            f.write(r.content)
 
-    # wait for all threads to finish
-    queue.join()
-
-    for id in sorted(results.keys(), reverse=True):
-        print(results[id])
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
